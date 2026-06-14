@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scroll behavior and body base style */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  color: #1a1a1a;
+  background:
+    radial-gradient(circle at top left, rgba(212, 98, 42, 0.08), transparent 30%),
+    radial-gradient(circle at top right, rgba(74, 124, 89, 0.08), transparent 24%),
+    linear-gradient(180deg, #fffdf9 0%, #faf6f1 100%);
+  min-height: 100vh;
+}
+
+/* Custom CSS keyframes and animations for the loader and others */
+@keyframes grow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+    filter: drop-shadow(0 0 15px rgba(74, 124, 89, 0.4));
+  }
+}
+
+.animate-grow {
+  animation: grow 2s ease-in-out infinite;
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s infinite ease-in-out;
+}
+
+/* Custom utility styles or component styles that don't map cleanly to utility classes */
+.glass {
+  background: rgba(255, 252, 248, 0.82);
+  border: 1px solid rgba(92, 61, 46, 0.11);
+  box-shadow: 0 24px 60px rgba(52, 28, 17, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.glass-soft {
+  background: rgba(255, 252, 248, 0.65);
+  border: 1px solid rgba(92, 61, 46, 0.08);
+  box-shadow: 0 12px 30px rgba(52, 28, 17, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+/* Map state path animations */
+.map-state path {
+  fill: rgba(92, 61, 46, 0.12);
+  stroke: rgba(92, 61, 46, 0.32);
+  stroke-width: 2;
+  transition: fill 0.3s ease, stroke 0.3s ease, transform 0.3s ease;
+}
+
+.map-state:hover path,
+.map-state.active path {
+  fill: rgba(212, 98, 42, 0.52);
+  stroke: rgba(212, 98, 42, 0.85);
+}
+
+/* Custom styles for hidescroll and custom sliders */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Confetti styling */
+.confetti-piece {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 24px;
+  opacity: 0.85;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: fall 1.8s linear forwards;
+}
+
+@keyframes fall {
+  0% {
+    top: -10px;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    top: 105vh;
+    transform: translateY(0) rotate(360deg);
+  }
+}
