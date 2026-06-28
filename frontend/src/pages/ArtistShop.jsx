@@ -1,11 +1,14 @@
 import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Heart, Star, Send, MapPin, Share2 } from 'lucide-react';
 import { artists, products } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
-const ArtistShop = ({ slug, onNavigate }) => {
+const ArtistShop = () => {
+  const { slug } = useParams();
+  const navigate = useNavigate();
   const artist = artists.find(a => a.slug === slug) || artists[0];
   const artistProducts = products.filter(p => p.artistSlug === slug);
   const { addToCart } = useCart();
@@ -24,7 +27,7 @@ const ArtistShop = ({ slug, onNavigate }) => {
     <div className="min-h-screen bg-brand-cream">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <button
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-brand-brown hover:text-brand-orange font-semibold mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -97,7 +100,7 @@ const ArtistShop = ({ slug, onNavigate }) => {
                 key={product.slug}
                 whileHover={{ y: -4 }}
                 className="bg-white border border-brand-brown/10 rounded-2xl overflow-hidden shadow-sm cursor-pointer group"
-                onClick={() => onNavigate(`product/${product.slug}`)}
+                onClick={() => navigate(`/product/${product.slug}`)}
               >
                 <div className="relative h-48 overflow-hidden">
                   <img

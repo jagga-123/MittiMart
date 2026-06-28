@@ -1,10 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, ArrowLeft } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { products } from '../data/mockData';
 
-const WishlistPage = ({ onNavigate }) => {
+const WishlistPage = () => {
+  const navigate = useNavigate();
   const { wishlist, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
 
@@ -20,7 +22,7 @@ const WishlistPage = ({ onNavigate }) => {
           <h2 className="font-heading text-2xl font-bold text-brand-brown mb-2">Your Wishlist is Empty</h2>
           <p className="text-brand-muted mb-6">Save your favorite handmade treasures for later.</p>
           <button
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
             className="px-6 py-3 bg-gradient-to-r from-brand-brown to-brand-orange text-white font-bold rounded-full shadow-md"
           >
             Discover Treasures
@@ -35,7 +37,7 @@ const WishlistPage = ({ onNavigate }) => {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <button
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-brand-brown hover:text-brand-orange font-semibold"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -50,7 +52,7 @@ const WishlistPage = ({ onNavigate }) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-white border border-brand-brown/10 rounded-2xl overflow-hidden shadow-sm hover:shadow-premium transition-shadow cursor-pointer group"
-              onClick={() => onNavigate(`product/${product.slug}`)}
+              onClick={() => navigate(`/product/${product.slug}`)}
             >
               <div className="relative h-48 overflow-hidden">
                 <img

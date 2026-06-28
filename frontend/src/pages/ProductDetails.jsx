@@ -1,11 +1,14 @@
 import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star, Heart, Minus, Plus, ArrowLeft } from 'lucide-react';
 import { products } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
-const ProductDetails = ({ slug, onNavigate }) => {
+const ProductDetails = () => {
+  const { slug } = useParams();
+  const navigate = useNavigate();
   const product = products.find(p => p.slug === slug) || products[0];
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
@@ -14,14 +17,14 @@ const ProductDetails = ({ slug, onNavigate }) => {
 
   const handleBuyNow = () => {
     addToCart(product.slug, quantity);
-    onNavigate('cart');
+    navigate('/cart');
   };
 
   return (
     <div className="min-h-screen bg-brand-cream">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <button
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-brand-brown hover:text-brand-orange mb-6 font-semibold"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -97,7 +100,7 @@ const ProductDetails = ({ slug, onNavigate }) => {
             <div className="flex items-center gap-3">
               <span className="text-xs font-bold text-brand-muted uppercase">Made by:</span>
               <button
-                onClick={() => onNavigate(`artist/${product.artistSlug}`)}
+                onClick={() => navigate(`/artist/${product.artistSlug}`)}
                 className="text-brand-brown font-semibold hover:text-brand-orange underline underline-offset-2"
               >
                 {product.artist}

@@ -1,62 +1,134 @@
-import { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
+import RoleBasedNavbar from './components/RoleBasedNavbar';
 import Loader from './components/Loader';
+import { useAuth } from './hooks/useAuth';
+
+// Layouts
+import PublicLayout from './layouts/PublicLayout';
+import CustomerLayout from './layouts/CustomerLayout';
+import SellerLayout from './layouts/SellerLayout';
+import AdminLayout from './layouts/AdminLayout';
+
+// Route Guards
+import ProtectedRoute from './routes/ProtectedRoute';
+import GuestRoute from './routes/GuestRoute';
+import RoleGuard from './routes/RoleGuard';
+
+// Pages - Public
+import Home from './pages/Home';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import ProductDetails from './pages/ProductDetails';
+import ArtistShop from './pages/ArtistShop';
 import AuthPage from './pages/Auth';
+import NotFoundPage from './pages/NotFoundPage';
+import UnauthorizedPage from './pages/UnauthorizedPage';
+
+// Pages - Customer
 import CartPage from './pages/Cart';
 import WishlistPage from './pages/Wishlist';
-import SellerDashboard from './pages/SellerDashboard';
-import ProductDetails from './pages/ProductDetails';
-import TrackingPage from './pages/Tracking';
+import CheckoutPage from './pages/Checkout';
+import OrdersPage from './pages/Orders';
+import ProfilePage from './pages/Profile';
+import ChatPage from './pages/Chat';
 import NotificationsPage from './pages/Notifications';
-import ArtistShop from './pages/ArtistShop';
+import TrackingPage from './pages/Tracking';
+
+// Pages - Seller
+import SellerDashboard from './pages/SellerDashboard';
+import SellerAddProductPage from './pages/SellerAddProduct';
+import SellerEditProductPage from './pages/SellerEditProduct';
+import SellerProductsPage from './pages/SellerProducts';
+import SellerOrdersPage from './pages/SellerOrders';
+import SellerMessagesPage from './pages/SellerMessages';
+import SellerAnalyticsPage from './pages/SellerAnalytics';
+
+// Pages - Admin
+import AdminDashboardPage from './pages/AdminDashboard';
+import ManageUsersPage from './pages/ManageUsers';
+import ManageSellersPage from './pages/ManageSellers';
+import ManageProductsPage from './pages/ManageProducts';
+import AdminOrdersPage from './pages/AdminOrders';
+import ReportsPage from './pages/Reports';
+import SettingsPage from './pages/Settings';
+
+// Roles
+import { ROLES } from './permissions/permissions';
 
 function App() {
-  const [route, setRoute] = useState(window.location.hash.slice(1) || 'home');
-  const [loading, setLoading] = useState(true);
+  const { isAuthReady } = useAuth();
 
-  useEffect(() => {
-    const handleHashChange = () => {
-      setRoute(window.location.hash.slice(1) || 'home');
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-      clearTimeout(timer);
-    };
-  }, []);
-
-  const navigate = (newRoute) => {
-    window.location.hash = newRoute;
-    setRoute(newRoute);
-  };
-
-  const renderPage = () => {
-    if (route === 'home') return <Home onNavigate={navigate} />;
-    if (route === 'auth') return <AuthPage onNavigate={navigate} />;
-    if (route === 'cart') return <CartPage onNavigate={navigate} />;
-    if (route === 'wishlist') return <WishlistPage onNavigate={navigate} />;
-    if (route === 'seller') return <SellerDashboard onNavigate={navigate} />;
-    if (route === 'tracking') return <TrackingPage />;
-    if (route === 'notifications') return <NotificationsPage />;
-    if (route.startsWith('product/')) return <ProductDetails slug={route.split('/')[1]} onNavigate={navigate} />;
-    if (route.startsWith('artist/')) return <ArtistShop slug={route.split('/')[1]} onNavigate={navigate} />;
-    return <Home onNavigate={navigate} />;
-  };
+  if (!isAuthReady) {
+    return <Loader />;
+  }
 
   return (
-    <AnimatePresence>
-      {loading && <Loader />}
-      {!loading && (
-        <div className="min-h-screen flex flex-col">
-          <Navbar onNavigate={navigate} currentRoute={route} />
-          <main className="flex-1">
-            {renderPage()}
-          </main>
-        </div>
-      )}
+    <AnimatePresence mode="wait">
+      <div className="min-h-screen flex flex-col bg-brand-cream">
+        <RoleBasedNavbar />
+        <main className="flex-1">
+          <Routes>
+            {/* Public Routes */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/product/:slug" element={<ProductDetails />} />
+              <Route path="/artist/:slug" element={<ArtistShop />} />
+              <Route path="/403" element={<UnauthorizedPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+
+            {/* Guest-only Routes (login/register) */}
+            <Route element={<GuestRoute />}>
+              <Route path="/login" element={<AuthPage mode="login" />} />
+              <Route path="/register" element={<AuthPage mode="register" />} />
+            </Route>
+
+            {/* Customer Routes */}
+            <Route element={<ProtectedRoute allowedRoles={[ROLES.CUSTOMER]} />}>
+              <Route element={<CustomerLayout />}>
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/chat" element={<ChatPage />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/tracking" element={<TrackingPage />} />
+              </Route>
+            </Route>
+
+            {/* Seller Routes */}
+            <Route element={<ProtectedRoute allowedRoles={[ROLES.SELLER, ROLES.ADMIN]} />}>
+              <Route element={<SellerLayout />}>
+                <Route path="/seller/dashboard" element={<SellerDashboard />} />
+                <Route path="/seller/add-product" element={<SellerAddProductPage />} />
+                <Route path="/seller/edit-product/:slug" element={<SellerEditProductPage />} />
+                <Route path="/seller/products" element={<SellerProductsPage />} />
+                <Route path="/seller/orders" element={<SellerOrdersPage />} />
+                <Route path="/seller/messages" element={<SellerMessagesPage />} />
+                <Route path="/seller/analytics" element={<SellerAnalyticsPage />} />
+              </Route>
+            </Route>
+
+            {/* Admin Routes */}
+            <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                <Route path="/admin/users" element={<ManageUsersPage />} />
+                <Route path="/admin/sellers" element={<ManageSellersPage />} />
+                <Route path="/admin/products" element={<ManageProductsPage />} />
+                <Route path="/admin/orders" element={<AdminOrdersPage />} />
+                <Route path="/admin/reports" element={<ReportsPage />} />
+                <Route path="/admin/settings" element={<SettingsPage />} />
+              </Route>
+            </Route>
+          </Routes>
+        </main>
+      </div>
     </AnimatePresence>
   );
 }

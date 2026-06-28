@@ -1,39 +1,74 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Store, Mail, Lock, Phone, MapPin, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Store, User, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { ROLES, getRoleHomePath, getRoleLabel } from '../permissions/permissions';
 
-const AuthPage = ({ onNavigate, defaultTab = 'buyer' }) => {
-  const { loginBuyer, loginSeller } = useAuth();
-  const [tab, setTab] = useState(defaultTab);
+const roleOptions = [
+  { value: ROLES.CUSTOMER, label: 'Customer', icon: User, defaultName: 'Aarav Customer', defaultEmail: 'customer@mittimart.test' },
+  { value: ROLES.SELLER, label: 'Seller', icon: Store, defaultName: 'Sunita Devi', defaultEmail: 'seller@mittimart.test' },
+  { value: ROLES.ADMIN, label: 'Admin', icon: ShieldCheck, defaultName: 'MittiMart Admin', defaultEmail: 'admin@mittimart.test' },
+];
+
+const AuthPage = ({ mode = 'login' }) => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [formMode, setFormMode] = useState(mode);
+  const [role, setRole] = useState(searchParams.get('role') || ROLES.CUSTOMER);
+  const selectedRole = useMemo(() => roleOptions.find((item) => item.value === role) || roleOptions[0], [role]);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    location: '',
-    password: ''
+    name: selectedRole.defaultName,
+    email: selectedRole.defaultEmail,
+    password: '',
   });
 
-  const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  useEffect(() => {
+    setFormMode(mode);
+  }, [mode]);
+
+  useEffect(() => {
+    const nextRole = searchParams.get('role');
+    if (nextRole) {
+      setRole(nextRole);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const nextRole = roleOptions.find((item) => item.value === role) || roleOptions[0];
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || nextRole.defaultName,
+      email: prev.email || nextRole.defaultEmail,
+    }));
+  }, [role]);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (tab === 'buyer') {
-      loginBuyer(formData.email);
-      onNavigate('home');
-    } else {
-      loginSeller(formData);
-      onNavigate('seller');
-    }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const nextUser = login({
+      id: `user-${Date.now()}`,
+      name: formData.name || selectedRole.defaultName,
+      email: formData.email || selectedRole.defaultEmail,
+      role,
+      language: role === ROLES.SELLER ? 'hi-IN' : 'en',
+    });
+
+    navigate(getRoleHomePath(nextUser.role));
   };
+
+  const roleMeta = roleOptions.find((item) => item.value === role) || roleOptions[0];
 
   return (
     <div className="min-h-screen bg-brand-cream flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <button
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-brand-brown hover:text-brand-orange font-semibold mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -44,27 +79,64 @@ const AuthPage = ({ onNavigate, defaultTab = 'buyer' }) => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white border border-brand-brown/10 rounded-2xl p-6 shadow-premium"
         >
-          <h1 className="font-heading text-2xl font-bold text-brand-brown mb-6 text-center">
-            Welcome to MittiMart
-          </h1>
+          <div className="text-center mb-6">
+            <h1 className="font-heading text-2xl font-bold text-brand-brown">
+              {formMode === 'login' ? 'Welcome back to MittiMart' : 'Create your MittiMart account'}
+            </h1>
+            <p className="text-sm text-brand-muted mt-2">
+              Select a role, sign in, and test the matching protected routes.
+            </p>
+          </div>
 
-          <div className="flex gap-2 mb-6 bg-brand-cream rounded-full p-1.5 border border-brand-brown/10">
+          <div className="flex gap-2 mb-5 bg-brand-cream rounded-full p-1.5 border border-brand-brown/10">
             <button
-              onClick={() => setTab('buyer')}
-              className={`flex-1 py-2 rounded-full font-semibold text-sm flex items-center justify-center gap-2 ${
-                tab === 'buyer' ? 'bg-gradient-to-r from-brand-brown to-brand-orange text-white' : 'text-brand-brown'
+              onClick={() => {
+                setFormMode('login');
+                navigate('/login');
+              }}
+              className={`flex-1 py-2 rounded-full font-semibold text-sm ${
+                formMode === 'login'
+                  ? 'bg-gradient-to-r from-brand-brown to-brand-orange text-white'
+                  : 'text-brand-brown'
               }`}
             >
-              <User className="w-4 h-4" /> Buyer
+              Login
             </button>
             <button
-              onClick={() => setTab('seller')}
-              className={`flex-1 py-2 rounded-full font-semibold text-sm flex items-center justify-center gap-2 ${
-                tab === 'seller' ? 'bg-gradient-to-r from-brand-brown to-brand-orange text-white' : 'text-brand-brown'
+              onClick={() => {
+                setFormMode('register');
+                navigate('/register');
+              }}
+              className={`flex-1 py-2 rounded-full font-semibold text-sm ${
+                formMode === 'register'
+                  ? 'bg-gradient-to-r from-brand-brown to-brand-orange text-white'
+                  : 'text-brand-brown'
               }`}
             >
-              <Store className="w-4 h-4" /> Seller
+              Register
             </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            {roleOptions.map((option) => {
+              const Icon = option.icon;
+              const active = role === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setRole(option.value)}
+                  className={`rounded-2xl border p-3 text-left transition-all ${
+                    active
+                      ? 'bg-brand-brown text-white border-brand-brown shadow-md'
+                      : 'bg-brand-cream border-brand-brown/10 text-brand-brown'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 mb-2" />
+                  <div className="text-xs font-bold uppercase tracking-wider">{option.label}</div>
+                </button>
+              );
+            })}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,7 +151,7 @@ const AuthPage = ({ onNavigate, defaultTab = 'buyer' }) => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder={tab === 'seller' ? 'Your shop/artist name' : 'Your name'}
+                  placeholder={roleMeta.defaultName}
                   className="w-full pl-10 pr-4 py-2.5 border border-brand-brown/15 rounded-full text-sm outline-none focus:border-brand-orange"
                   required
                 />
@@ -97,50 +169,12 @@ const AuthPage = ({ onNavigate, defaultTab = 'buyer' }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="you@example.com"
+                  placeholder={roleMeta.defaultEmail}
                   className="w-full pl-10 pr-4 py-2.5 border border-brand-brown/15 rounded-full text-sm outline-none focus:border-brand-orange"
                   required
                 />
               </div>
             </div>
-
-            {tab === 'seller' && (
-              <>
-                <div>
-                  <label className="text-sm font-semibold text-brand-brown mb-1.5 block">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="+91 XXXXXXXXXX"
-                      className="w-full pl-10 pr-4 py-2.5 border border-brand-brown/15 rounded-full text-sm outline-none focus:border-brand-orange"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-brand-brown mb-1.5 block">
-                    Location / Village
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      placeholder="Madhubani, Bihar"
-                      className="w-full pl-10 pr-4 py-2.5 border border-brand-brown/15 rounded-full text-sm outline-none focus:border-brand-orange"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
 
             <div>
               <label className="text-sm font-semibold text-brand-brown mb-1.5 block">
@@ -164,7 +198,7 @@ const AuthPage = ({ onNavigate, defaultTab = 'buyer' }) => {
               type="submit"
               className="w-full py-3 bg-gradient-to-r from-brand-brown to-brand-orange text-white font-bold rounded-full shadow-md hover:scale-102 transition-transform"
             >
-              {tab === 'buyer' ? 'Login as Buyer' : 'Register as Seller'}
+              {formMode === 'login' ? `Login as ${getRoleLabel(role)}` : `Register as ${getRoleLabel(role)}`}
             </button>
           </form>
         </motion.div>

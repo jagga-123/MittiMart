@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Plus, ShoppingBag, IndianRupee, BarChart3, CheckCircle2, Clock } from 'lucide-react';
 import { products, initialOrders, chatThreads, analyticsBars } from '../data/mockData';
 
-const SellerDashboard = ({ onNavigate }) => {
+const SellerDashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
   const stats = [
@@ -22,7 +24,7 @@ const SellerDashboard = ({ onNavigate }) => {
             <p className="text-brand-muted font-medium">Welcome back to your MittiMart Seller Panel</p>
           </div>
           <button
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-brand-brown hover:text-brand-orange font-semibold"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -76,7 +78,10 @@ const SellerDashboard = ({ onNavigate }) => {
 
         {/* Quick Add Product */}
         <div className="mb-8">
-          <button className="px-6 py-3 bg-brand-orange text-white font-bold rounded-full shadow-md flex items-center gap-2 hover:scale-102 transition-transform">
+          <button
+            onClick={() => navigate('/seller/add-product')}
+            className="px-6 py-3 bg-brand-orange text-white font-bold rounded-full shadow-md flex items-center gap-2 hover:scale-102 transition-transform"
+          >
             <Plus className="w-4 h-4" />
             Add New Product
           </button>
@@ -171,7 +176,10 @@ const SellerDashboard = ({ onNavigate }) => {
                     <h4 className="font-heading font-bold text-brand-brown text-sm mb-1">{product.name}</h4>
                     <p className="text-xs text-brand-muted mb-2">₹{product.price} &middot; {product.rating}★</p>
                     <div className="flex gap-2">
-                      <button className="flex-1 py-1.5 bg-brand-cream border border-brand-brown/10 text-xs font-semibold rounded-full">
+                      <button
+                        onClick={() => navigate(`/seller/edit-product/${product.slug}`)}
+                        className="flex-1 py-1.5 bg-brand-cream border border-brand-brown/10 text-xs font-semibold rounded-full"
+                      >
                         Edit
                       </button>
                       <button className="flex-1 py-1.5 bg-brand-green/10 text-brand-green text-xs font-semibold rounded-full">

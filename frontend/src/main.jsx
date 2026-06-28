@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext'
@@ -7,13 +8,15 @@ import { WishlistProvider } from './context/WishlistContext'
 import { VoiceProvider } from './context/VoiceContext'
 
 createRoot(document.getElementById('root')).render(
-  <AuthProvider>
-    <CartProvider>
-      <WishlistProvider>
-        <VoiceProvider>
-          <App />
-        </VoiceProvider>
-      </WishlistProvider>
-    </CartProvider>
-  </AuthProvider>
+  <BrowserRouter>
+    <AuthProvider>
+      <CartProvider>
+        <WishlistProvider>
+          <VoiceProvider>
+            <App />
+          </VoiceProvider>
+        </WishlistProvider>
+      </CartProvider>
+    </AuthProvider>
+  </BrowserRouter>
 )

@@ -1,10 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Minus, Plus, ShoppingCart, Heart, CreditCard } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { products } from '../data/mockData';
 
-const CartPage = ({ onNavigate }) => {
+const CartPage = () => {
+  const navigate = useNavigate();
   const { cart, adjustCart, removeFromCart, cartCount } = useCart();
   const { wishlist, toggleWishlist, isWishlisted } = useWishlist();
 
@@ -25,7 +27,7 @@ const CartPage = ({ onNavigate }) => {
           <h2 className="font-heading text-2xl font-bold text-brand-brown mb-2">Your Cart is Empty</h2>
           <p className="text-brand-muted mb-6">Discover handmade treasures crafted by real Indian artists.</p>
           <button
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
             className="px-6 py-3 bg-gradient-to-r from-brand-brown to-brand-orange text-white font-bold rounded-full shadow-md"
           >
             Explore Crafts
@@ -40,7 +42,7 @@ const CartPage = ({ onNavigate }) => {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <button
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-brand-brown hover:text-brand-orange font-semibold"
           >
             <ArrowLeft className="w-4 h-4" /> Continue Shopping
@@ -62,12 +64,12 @@ const CartPage = ({ onNavigate }) => {
                   src={product.image}
                   alt={product.name}
                   className="w-24 h-24 rounded-xl object-cover border border-brand-brown/10 cursor-pointer"
-                  onClick={() => onNavigate(`product/${product.slug}`)}
+                  onClick={() => navigate(`/product/${product.slug}`)}
                 />
                 <div className="flex-1">
                   <h3
                     className="font-heading font-bold text-brand-brown cursor-pointer hover:text-brand-orange"
-                    onClick={() => onNavigate(`product/${product.slug}`)}
+                    onClick={() => navigate(`/product/${product.slug}`)}
                   >
                     {product.name}
                   </h3>
@@ -130,7 +132,7 @@ const CartPage = ({ onNavigate }) => {
               </div>
 
               <button
-                onClick={() => onNavigate('checkout')}
+                onClick={() => navigate('/checkout')}
                 className="w-full mt-6 py-3 bg-gradient-to-r from-brand-brown to-brand-orange text-white font-bold rounded-full shadow-md hover:scale-102 transition-transform flex items-center justify-center gap-2"
               >
                 <CreditCard className="w-4 h-4" />

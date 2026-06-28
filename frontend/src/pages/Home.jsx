@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Volume2 } from 'lucide-react';
 import IndiaMap from '../components/IndiaMap';
@@ -10,7 +11,8 @@ import { useVoice } from '../context/VoiceContext';
 import { useCart } from '../context/CartContext';
 import { products, artists, reels, stateData } from '../data/mockData';
 
-const Home = ({ onNavigate }) => {
+const Home = () => {
+  const navigate = useNavigate();
   const { speak } = useVoice();
   const [selectedState, setSelectedState] = useState('Rajasthan');
   const [searchFilter, setSearchFilter] = useState('');
@@ -86,7 +88,7 @@ const Home = ({ onNavigate }) => {
     if (sortBy === 'Price Low-High') return a.price - b.price;
     if (sortBy === 'Price High-Low') return b.price - a.price;
     if (sortBy === 'Most Loved') return b.rating - a.rating;
-    return b.price - a.price; // default newest/highest price for story mock
+    return b.price - a.price;
   });
 
   const activeFilterChips = [];
@@ -126,7 +128,7 @@ const Home = ({ onNavigate }) => {
               Explore Crafts <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onNavigate('auth', { defaultTab: 'seller' })}
+              onClick={() => navigate('/register?role=seller')}
               className="px-6 py-3 bg-white/10 hover:bg-white/25 border border-white/30 text-white font-bold rounded-full backdrop-blur-sm transition-colors"
             >
               Become a Seller
@@ -196,7 +198,7 @@ const Home = ({ onNavigate }) => {
               <ArtistCard
                 artist={artist}
                 onWatchStory={(art) => setStoryModalArtist(art)}
-                onNavigate={onNavigate}
+                onNavigate={(path) => navigate(path)}
               />
             </div>
           ))}
@@ -311,7 +313,7 @@ const Home = ({ onNavigate }) => {
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {sortedProducts.map((p) => (
-            <ProductCard key={p.slug} product={p} onNavigate={onNavigate} />
+            <ProductCard key={p.slug} product={p} onNavigate={(path) => navigate(path)} />
           ))}
           {sortedProducts.length === 0 && (
             <div className="col-span-full bg-white border border-brand-brown/10 rounded-2xl py-12 text-center text-brand-muted font-bold">
@@ -345,7 +347,7 @@ const Home = ({ onNavigate }) => {
 
       {/* SECTION 8 — AI Gift Finder */}
       <section className="py-6">
-        <MittiAI onNavigate={onNavigate} />
+        <MittiAI onNavigate={(path) => navigate(path)} />
       </section>
 
       {/* SECTION 9 — Mitra Card Helper */}
@@ -435,7 +437,7 @@ const Home = ({ onNavigate }) => {
                 <button
                   onClick={() => {
                     setStoryModalArtist(null);
-                    onNavigate(`artist/${storyModalArtist.slug}`);
+                    navigate(`/artist/${storyModalArtist.slug}`);
                   }}
                   className="px-5 py-2.5 bg-brand-brown text-white font-bold text-xs rounded-full hover:bg-brand-brown/95 transition-colors"
                 >
@@ -508,7 +510,7 @@ const Home = ({ onNavigate }) => {
                    <button
                      onClick={() => {
                        setReelModal(null);
-                       onNavigate('cart');
+                       navigate('/cart');
                      }}
                      className="w-full py-3 bg-gradient-to-r from-brand-brown to-brand-orange text-white font-bold text-xs rounded-full shadow-md hover:scale-102 transition-transform text-center"
                    >
